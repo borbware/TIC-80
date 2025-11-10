@@ -194,3 +194,6 @@ build/*.map
 # 3ds files
 *.3dsx
 *.smdh
+# Steamworks SDK
+include/steam/*
+include/redistributable_bin/*
