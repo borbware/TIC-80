@@ -67,6 +67,11 @@ if(BUILD_EDITORS)
     target_compile_definitions(tic80studio PUBLIC BUILD_EDITORS)
 endif()
 
+if(BUILD_WITH_STEAM)
+    target_compile_definitions(tic80studio PUBLIC TIC_BUILD_STEAMAPI)
+    target_compile_definitions(tic80studio PUBLIC TIC_LOCAL_SERVER=\"localhost:3000\")
+endif()
+
 if(TIC_EXPORT_WEBSITE)
     target_compile_definitions(tic80studio PUBLIC TIC_EXPORT_WEBSITE="${TIC_EXPORT_WEBSITE}")
 endif()
