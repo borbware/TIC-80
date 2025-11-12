@@ -48,7 +48,7 @@
 #endif
 #define TIC_COPYRIGHT TIC_WEBSITE " (C) 2017-" TIC_VERSION_YEAR
 
-#if defined(TIC_BUILD_STEAMAPI)
+#if defined(BUILD_WITH_STEAM)
     #define TIC_NET_WEBSITE "http://" TIC_LOCAL_SERVER
 #else
     #define TIC_NET_WEBSITE TIC_WEBSITE
