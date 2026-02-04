@@ -66,3 +66,7 @@ endif()
 if(BUILD_EDITORS)
     target_compile_definitions(tic80studio PUBLIC BUILD_EDITORS)
 endif()
+
+if(TIC_EXPORT_WEBSITE)
+    target_compile_definitions(tic80studio PUBLIC TIC_EXPORT_WEBSITE="${TIC_EXPORT_WEBSITE}")
+endif()

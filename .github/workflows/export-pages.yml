@@ -1,0 +1,197 @@
+name: Export Runtimes And Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  EXPORT_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+
+jobs:
+  build-export-win:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Build win export runtime
+        shell: cmd
+        run: |
+          cd build
+          cmake -G "Visual Studio 17 2022" -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --config MinSizeRel --parallel
+          copy /Y bin\tic80.exe ..\win
+
+      - name: Upload win export runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-win-runtime
+          path: win
+
+  build-export-html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mymindstorm/setup-emsdk@v14
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Build html export runtime
+        run: |
+          cd build
+          emcmake cmake -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          cp html/index.html bin/index.html
+          cd bin
+          zip -9 -r ../../html_runtime.zip .
+          cd ../..
+          mv html_runtime.zip html
+
+      - name: Upload html export runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-html-runtime
+          path: html
+
+  build-pro-win:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Build windows pro
+        shell: cmd
+        run: |
+          cd build
+          cmake -G "Visual Studio 17 2022" -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_PRO=On -DBUILD_WITH_ALL=ON -DTIC_EXPORT_WEBSITE=%EXPORT_BASE_URL% -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --config MinSizeRel --parallel
+          copy /Y bin\tic80.exe ..\tic80-pro-win.exe
+
+      - name: Upload windows pro
+        uses: actions/upload-artifact@v4
+        with:
+          name: pro-win-exe
+          path: tic80-pro-win.exe
+
+  publish-pages:
+    runs-on: ubuntu-latest
+    needs: [build-export-win, build-export-html, build-pro-win]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: version
+        run: |
+          major="$(sed -n 's/^set(VERSION_MAJOR \(.*\))/\1/p' cmake/version.cmake | tr -d ' \r')"
+          minor="$(sed -n 's/^set(VERSION_MINOR \(.*\))/\1/p' cmake/version.cmake | tr -d ' \r')"
+          status="$(sed -n 's/^set(VERSION_STATUS \"\(.*\)\")/\1/p' cmake/version.cmake | tr -d '\r')"
+          version="${major}.${minor}${status}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Download win export runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: export-win-runtime
+          path: _artifacts/export-win-runtime
+
+      - name: Download html export runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: export-html-runtime
+          path: _artifacts/export-html-runtime
+
+      - name: Download windows pro
+        uses: actions/download-artifact@v4
+        with:
+          name: pro-win-exe
+          path: _artifacts/pro-win-exe
+
+      - name: Compose site
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          mkdir -p site/export/"${version}" site/export/latest site/downloads
+
+          cp _artifacts/export-win-runtime/win site/export/"${version}"/win
+          cp _artifacts/export-html-runtime/html site/export/"${version}"/html
+          cp _artifacts/export-win-runtime/win site/export/latest/win
+          cp _artifacts/export-html-runtime/html site/export/latest/html
+
+          cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win.exe
+          cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win-"${version}".exe
+
+          cat > site/index.html <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <title>TIC-80 Export Artifacts</title>
+            <style>
+              body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; line-height: 1.5; }
+              h1, h2 { margin-bottom: 0.4rem; }
+              ul { margin-top: 0.2rem; }
+            </style>
+          </head>
+          <body>
+            <h1>TIC-80 Export Artifacts</h1>
+            <p>Version: <strong>${version}</strong></p>
+
+            <h2>Export runtime (versioned)</h2>
+            <ul>
+              <li><a href="./export/${version}/win">export/${version}/win</a></li>
+              <li><a href="./export/${version}/html">export/${version}/html</a></li>
+            </ul>
+
+            <h2>Export runtime (latest)</h2>
+            <ul>
+              <li><a href="./export/latest/win">export/latest/win</a></li>
+              <li><a href="./export/latest/html">export/latest/html</a></li>
+            </ul>
+
+            <h2>Downloads</h2>
+            <ul>
+              <li><a href="./downloads/tic80-pro-win.exe">downloads/tic80-pro-win.exe</a></li>
+              <li><a href="./downloads/tic80-pro-win-${version}.exe">downloads/tic80-pro-win-${version}.exe</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy To Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

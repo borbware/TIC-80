@@ -2188,12 +2188,12 @@ static void exportGame(Console* console, const char* name, const char* system, n
     GameExportData data = {console};
     strcpy(data.filename, name);
 
-    char url[TICNAME_MAX] = "/export/" DEF2STR(TIC_VERSION_MAJOR) "." DEF2STR(TIC_VERSION_MINOR) TIC_VERSION_STATUS "/";
-    strcat(url, system);
+    char url[TICNAME_MAX * 4] = TIC_EXPORT_WEBSITE "/export/" DEF2STR(TIC_VERSION_MAJOR) "." DEF2STR(TIC_VERSION_MINOR) TIC_VERSION_STATUS "/";
+    strncat(url, system, sizeof url - strlen(url) - 1);
 
 #if defined(TIC80_PRO)
     if (params.alone)
-        strcat(url, tic_get_script(console->tic)->name);
+        strncat(url, tic_get_script(console->tic)->name, sizeof url - strlen(url) - 1);
 #endif
 
     tic_net_get(console->net, url, callback, MOVE(data));

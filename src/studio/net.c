@@ -170,6 +170,12 @@ struct tic_net
     s32 count;
 };
 
+static bool isAbsoluteUrl(const char* url)
+{
+    return strncmp(url, "https://", STRLEN("https://")) == 0
+        || strncmp(url, "http://", STRLEN("http://")) == 0;
+}
+
 #if defined(__ANDROID__)
 #include <jni.h>
 JNIEnv *Android_JNI_GetEnv();
@@ -200,7 +206,10 @@ void tic_net_get(tic_net* net, const char* url, net_get_callback callback, void*
     HttpGet* get = NEW(HttpGet);
     memset(get, 0, sizeof *get);
 
-    sprintf(get->url, "%s%s", net->host, url);
+    if(isAbsoluteUrl(url))
+        snprintf(get->url, sizeof get->url, "%s", url);
+    else
+        snprintf(get->url, sizeof get->url, "%s%s", net->host, url);
 
     get->req = naettRequest(get->url, naettMethod("GET"), naettHeader("accept", "*/*"));
     get->res = naettMake(get->req);
