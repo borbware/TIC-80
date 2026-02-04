@@ -71,6 +71,39 @@ jobs:
           name: export-html-runtime
           path: html
 
+  build-export-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-12 g++-12 libglu1-mesa-dev libasound2-dev libpulse-dev libaudio-dev libsamplerate0-dev libcurl4-openssl-dev -y
+          sudo ln -s -f /usr/bin/gcc-12 /usr/bin/gcc
+          sudo ln -s -f /usr/bin/g++-12 /usr/bin/g++
+
+      - name: Build linux export runtime
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          cp bin/tic80 ../linux
+          chmod +x ../linux
+
+      - name: Upload linux export runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-linux-runtime
+          path: linux
+
   build-pro-win:
     runs-on: windows-2022
     steps:
@@ -123,9 +156,75 @@ jobs:
           name: win-exe
           path: tic80-win.exe
 
+  build-pro-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-12 g++-12 libglu1-mesa-dev libasound2-dev libpulse-dev libaudio-dev libsamplerate0-dev libcurl4-openssl-dev -y
+          sudo ln -s -f /usr/bin/gcc-12 /usr/bin/gcc
+          sudo ln -s -f /usr/bin/g++-12 /usr/bin/g++
+
+      - name: Build linux pro
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DBUILD_WITH_ALL=ON -DBUILD_PRO=ON -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          cp bin/tic80 ../tic80-pro-linux
+          chmod +x ../tic80-pro-linux
+
+      - name: Upload linux pro
+        uses: actions/upload-artifact@v4
+        with:
+          name: pro-linux-exe
+          path: tic80-pro-linux
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-12 g++-12 libglu1-mesa-dev libasound2-dev libpulse-dev libaudio-dev libsamplerate0-dev libcurl4-openssl-dev -y
+          sudo ln -s -f /usr/bin/gcc-12 /usr/bin/gcc
+          sudo ln -s -f /usr/bin/g++-12 /usr/bin/g++
+
+      - name: Build linux
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DBUILD_WITH_ALL=ON -DBUILD_PRO=OFF -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          cp bin/tic80 ../tic80-linux
+          chmod +x ../tic80-linux
+
+      - name: Upload linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-exe
+          path: tic80-linux
+
   publish-pages:
     runs-on: ubuntu-latest
-    needs: [build-export-win, build-export-html, build-pro-win, build-win]
+    needs: [build-export-win, build-export-html, build-export-linux, build-pro-win, build-win, build-pro-linux, build-linux]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -165,6 +264,24 @@ jobs:
           name: win-exe
           path: _artifacts/win-exe
 
+      - name: Download linux export runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: export-linux-runtime
+          path: _artifacts/export-linux-runtime
+
+      - name: Download linux pro
+        uses: actions/download-artifact@v4
+        with:
+          name: pro-linux-exe
+          path: _artifacts/pro-linux-exe
+
+      - name: Download linux
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-exe
+          path: _artifacts/linux-exe
+
       - name: Compose site
         run: |
           version="${{ steps.version.outputs.version }}"
@@ -172,13 +289,19 @@ jobs:
 
           cp _artifacts/export-win-runtime/win site/export/"${version}"/win
           cp _artifacts/export-html-runtime/html site/export/"${version}"/html
+          cp _artifacts/export-linux-runtime/linux site/export/"${version}"/linux
           cp _artifacts/export-win-runtime/win site/export/latest/win
           cp _artifacts/export-html-runtime/html site/export/latest/html
+          cp _artifacts/export-linux-runtime/linux site/export/latest/linux
 
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win.exe
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win-"${version}".exe
           cp _artifacts/win-exe/tic80-win.exe site/downloads/tic80-win.exe
           cp _artifacts/win-exe/tic80-win.exe site/downloads/tic80-win-"${version}".exe
+          cp _artifacts/pro-linux-exe/tic80-pro-linux site/downloads/tic80-pro-linux
+          cp _artifacts/pro-linux-exe/tic80-pro-linux site/downloads/tic80-pro-linux-"${version}"
+          cp _artifacts/linux-exe/tic80-linux site/downloads/tic80-linux
+          cp _artifacts/linux-exe/tic80-linux site/downloads/tic80-linux-"${version}"
 
           cat > site/index.html <<EOF
           <!doctype html>
@@ -201,21 +324,27 @@ jobs:
             <ul>
               <li><a href="./export/${version}/win">export/${version}/win</a></li>
               <li><a href="./export/${version}/html">export/${version}/html</a></li>
+              <li><a href="./export/${version}/linux">export/${version}/linux</a></li>
             </ul>
 
             <h2>Export runtime (latest)</h2>
             <ul>
               <li><a href="./export/latest/win">export/latest/win</a></li>
               <li><a href="./export/latest/html">export/latest/html</a></li>
+              <li><a href="./export/latest/linux">export/latest/linux</a></li>
             </ul>
 
             <h2>Downloads</h2>
             <ul>
               <li><a href="./downloads/tic80-win.exe">downloads/tic80-win.exe</a></li>
               <li><a href="./downloads/tic80-win-${version}.exe">downloads/tic80-win-${version}.exe</a></li>
+              <li><a href="./downloads/tic80-linux">downloads/tic80-linux</a></li>
+              <li><a href="./downloads/tic80-linux-${version}">downloads/tic80-linux-${version}</a></li>
               <!--
               <li><a href="./downloads/tic80-pro-win.exe">downloads/tic80-pro-win.exe</a></li>
               <li><a href="./downloads/tic80-pro-win-${version}.exe">downloads/tic80-pro-win-${version}.exe</a></li>
+              <li><a href="./downloads/tic80-pro-linux">downloads/tic80-pro-linux</a></li>
+              <li><a href="./downloads/tic80-pro-linux-${version}">downloads/tic80-pro-linux-${version}</a></li>
               -->
             </ul>
           </body>
