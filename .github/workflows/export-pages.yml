@@ -59,7 +59,7 @@ jobs:
           cd build
           emcmake cmake -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
           cmake --build . --parallel
-          cp html/index.html bin/index.html
+          cp html/export.html bin/index.html
           cd bin
           zip -9 -r ../../html_runtime.zip .
           cd ../..
