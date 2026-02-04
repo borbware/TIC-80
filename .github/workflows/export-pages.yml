@@ -97,9 +97,35 @@ jobs:
           name: pro-win-exe
           path: tic80-pro-win.exe
 
+  build-win:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Build windows
+        shell: cmd
+        run: |
+          cd build
+          cmake -G "Visual Studio 17 2022" -DBUILD_SDLGPU=On -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_PRO=OFF -DBUILD_EDITORS=ON -DBUILD_WITH_ALL=ON -DTIC_EXPORT_WEBSITE=%EXPORT_BASE_URL% -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --config MinSizeRel --parallel
+          copy /Y bin\tic80.exe ..\tic80-win.exe
+
+      - name: Upload windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-exe
+          path: tic80-win.exe
+
   publish-pages:
     runs-on: ubuntu-latest
-    needs: [build-export-win, build-export-html, build-pro-win]
+    needs: [build-export-win, build-export-html, build-pro-win, build-win]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -133,6 +159,12 @@ jobs:
           name: pro-win-exe
           path: _artifacts/pro-win-exe
 
+      - name: Download windows
+        uses: actions/download-artifact@v4
+        with:
+          name: win-exe
+          path: _artifacts/win-exe
+
       - name: Compose site
         run: |
           version="${{ steps.version.outputs.version }}"
@@ -145,6 +177,8 @@ jobs:
 
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win.exe
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win-"${version}".exe
+          cp _artifacts/win-exe/tic80-win.exe site/downloads/tic80-win.exe
+          cp _artifacts/win-exe/tic80-win.exe site/downloads/tic80-win-"${version}".exe
 
           cat > site/index.html <<EOF
           <!doctype html>
@@ -177,8 +211,12 @@ jobs:
 
             <h2>Downloads</h2>
             <ul>
+              <li><a href="./downloads/tic80-win.exe">downloads/tic80-win.exe</a></li>
+              <li><a href="./downloads/tic80-win-${version}.exe">downloads/tic80-win-${version}.exe</a></li>
+              <!--
               <li><a href="./downloads/tic80-pro-win.exe">downloads/tic80-pro-win.exe</a></li>
               <li><a href="./downloads/tic80-pro-win-${version}.exe">downloads/tic80-pro-win-${version}.exe</a></li>
+              -->
             </ul>
           </body>
           </html>
