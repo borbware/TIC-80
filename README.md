@@ -434,8 +434,10 @@ This fork publishes export runtime files to GitHub Pages and uses them for `expo
 
 - Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/win`
 - Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/html`
+- Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/linux`
 - Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/win`
 - Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/html`
+- Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/linux`
 
 `<version>` is generated from `cmake/version.cmake` as `<major>.<minor><status>` (for example: `1.2-dev`).
 
