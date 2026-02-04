@@ -425,3 +425,39 @@ You can find the compiled version ready download and install [on F-Droid](https:
 * Li Jin — [Github @pigpigyyy](https://github.com/pigpigyyy)
 * Dania Rifki — [Github @Kaleidosium](https://github.com/Kaleidosium)
 * Carsten Teibes — [GitHub @carstene1ns](https://github.com/carstene1ns)
+
+# Self-hosted export runtime (this fork)
+
+This fork publishes export runtime files to GitHub Pages and uses them for `export win` and `export html`.
+
+## Runtime locations
+
+- Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/win`
+- Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/html`
+- Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/win`
+- Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/html`
+
+`<version>` is generated from `cmake/version.cmake` as `<major>.<minor><status>` (for example: `1.2-dev`).
+
+## Build TIC-80 with custom export host
+
+When building TIC-80, pass the custom export base URL:
+
+```sh
+cmake -DTIC_EXPORT_WEBSITE=https://etomarat.github.io/TIC-80 ..
+```
+
+The rest of the website host remains unchanged; only export runtime downloads use this URL.
+
+## Verify export
+
+1. Build and run TIC-80 with `TIC_EXPORT_WEBSITE` configured.
+2. Run `export win mygame` and verify `mygame.exe` is created and runs.
+3. Run `export html mygame` and verify `mygame.zip` is created.
+4. Open the ZIP and confirm it contains `cart.tic`.
+
+## CI workflow and artifacts
+
+- Workflow file: `.github/workflows/export-pages.yml`
+- Trigger: release publish (`release: published`) and manual run (`workflow_dispatch`)
+- Published artifacts are deployed to GitHub Pages under `/export/<version>/...` and `/export/latest/...`.
