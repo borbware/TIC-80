@@ -428,16 +428,18 @@ You can find the compiled version ready download and install [on F-Droid](https:
 
 # Self-hosted export runtime (this fork)
 
-This fork publishes export runtime files to GitHub Pages and uses them for `export win` and `export html`.
+This fork publishes export runtime files to GitHub Pages and uses them for `export win`, `export html`, `export linux`, and `export mac`.
 
 ## Runtime locations
 
 - Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/win`
 - Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/html`
 - Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/linux`
+- Versioned files: `https://etomarat.github.io/TIC-80/export/<version>/mac`
 - Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/win`
 - Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/html`
 - Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/linux`
+- Latest aliases: `https://etomarat.github.io/TIC-80/export/latest/mac`
 
 `<version>` is generated from `cmake/version.cmake` as `<major>.<minor><status>` (for example: `1.2-dev`).
 
