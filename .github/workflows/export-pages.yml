@@ -241,9 +241,15 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
+
+      - name: Build macOS x86_64 export runtime (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS x86_64 export runtime
         uses: actions/upload-artifact@v4
@@ -270,9 +276,15 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
+
+      - name: Build macOS arm64 export runtime (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS arm64 export runtime
         uses: actions/upload-artifact@v4
@@ -299,10 +311,16 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=ON -DBUILD_PRO=OFF -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
           for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Build macOS x86_64 (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS x86_64
         uses: actions/upload-artifact@v4
@@ -329,10 +347,16 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=ON -DBUILD_PRO=OFF -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
           for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Build macOS arm64 (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS arm64
         uses: actions/upload-artifact@v4
@@ -359,10 +383,16 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_PRO=ON -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
           for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Build macOS x86_64 pro (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS x86_64 pro
         uses: actions/upload-artifact@v4
@@ -389,10 +419,16 @@ jobs:
         run: |
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_PRO=ON -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          cmake --build . --parallel
+          cmake --build . --parallel 2
           mkdir -p ../artifacts
           cp bin/tic80 ../artifacts/tic80
           for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Build macOS arm64 pro (verbose on failure)
+        if: failure()
+        run: |
+          cd build
+          cmake --build . --parallel 1 --verbose
 
       - name: Upload macOS arm64 pro
         uses: actions/upload-artifact@v4
