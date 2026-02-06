@@ -222,9 +222,274 @@ jobs:
           name: linux-exe
           path: tic80-linux
 
+  build-export-macos-intel:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS x86_64 export runtime
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+
+      - name: Upload macOS x86_64 export runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-macos-intel
+          path: artifacts
+
+  build-export-macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS arm64 export runtime
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=OFF -DBUILD_PRO=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+
+      - name: Upload macOS arm64 export runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-macos-arm64
+          path: artifacts
+
+  build-macos-intel:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS x86_64
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=ON -DBUILD_PRO=OFF -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+          for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Upload macOS x86_64
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel
+          path: artifacts
+
+  build-macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS arm64
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_EDITORS=ON -DBUILD_PRO=OFF -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+          for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Upload macOS arm64
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: artifacts
+
+  build-pro-macos-intel:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS x86_64 pro
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_PRO=ON -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+          for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Upload macOS x86_64 pro
+        uses: actions/upload-artifact@v4
+        with:
+          name: pro-macos-intel
+          path: artifacts
+
+  build-pro-macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Install
+        run: brew uninstall --ignore-dependencies libidn2
+
+      - name: Build macOS arm64 pro
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC=ON -DBUILD_SDLGPU=On -DBUILD_WITH_ALL=ON -DBUILD_PRO=ON -DTIC_EXPORT_WEBSITE=$EXPORT_BASE_URL -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake --build . --parallel
+          mkdir -p ../artifacts
+          cp bin/tic80 ../artifacts/tic80
+          for f in bin/*.dylib; do [ -e "$f" ] || continue; cp "$f" ../artifacts/; done
+
+      - name: Upload macOS arm64 pro
+        uses: actions/upload-artifact@v4
+        with:
+          name: pro-macos-arm64
+          path: artifacts
+
+  macos-universal:
+    runs-on: macos-14
+    needs:
+      - build-export-macos-intel
+      - build-export-macos-arm64
+      - build-macos-intel
+      - build-macos-arm64
+      - build-pro-macos-intel
+      - build-pro-macos-arm64
+    steps:
+      - name: Download macOS x86_64 export runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: export-macos-intel
+          path: _macos/intel-export
+
+      - name: Download macOS arm64 export runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: export-macos-arm64
+          path: _macos/arm64-export
+
+      - name: Download macOS x86_64
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-intel
+          path: _macos/intel
+
+      - name: Download macOS arm64
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-arm64
+          path: _macos/arm64
+
+      - name: Download macOS x86_64 pro
+        uses: actions/download-artifact@v4
+        with:
+          name: pro-macos-intel
+          path: _macos/intel-pro
+
+      - name: Download macOS arm64 pro
+        uses: actions/download-artifact@v4
+        with:
+          name: pro-macos-arm64
+          path: _macos/arm64-pro
+
+      - name: Merge universal binaries and zip
+        run: |
+          set -euo pipefail
+
+          mkdir -p out
+
+          lipo -create -output out/mac _macos/intel-export/tic80 _macos/arm64-export/tic80
+
+          merge_pkg() {
+            local intel_dir="$1"
+            local arm_dir="$2"
+            local out_dir="$3"
+
+            mkdir -p "$out_dir"
+            lipo -create -output "$out_dir/tic80" "$intel_dir/tic80" "$arm_dir/tic80"
+
+            for f in "$intel_dir"/*.dylib; do
+              [ -e "$f" ] || continue
+              local base
+              base="$(basename "$f")"
+              if [ ! -f "$arm_dir/$base" ]; then
+                echo "Missing $base in $arm_dir" >&2
+                exit 1
+              fi
+              lipo -create -output "$out_dir/$base" "$f" "$arm_dir/$base"
+            done
+          }
+
+          rm -rf pkg pkg-pro
+          merge_pkg _macos/intel _macos/arm64 pkg
+          merge_pkg _macos/intel-pro _macos/arm64-pro pkg-pro
+
+          (cd pkg && zip -9 -r ../out/tic80-macos.zip .)
+          (cd pkg-pro && zip -9 -r ../out/tic80-pro-macos.zip .)
+
+      - name: Upload macOS universal artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal
+          path: out
+
   publish-pages:
     runs-on: ubuntu-latest
-    needs: [build-export-win, build-export-html, build-export-linux, build-pro-win, build-win, build-pro-linux, build-linux]
+    needs: [build-export-win, build-export-html, build-export-linux, build-pro-win, build-win, build-pro-linux, build-linux, macos-universal]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -282,6 +547,12 @@ jobs:
           name: linux-exe
           path: _artifacts/linux-exe
 
+      - name: Download macOS universal artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-universal
+          path: _artifacts/macos-universal
+
       - name: Compose site
         run: |
           version="${{ steps.version.outputs.version }}"
@@ -290,9 +561,11 @@ jobs:
           cp _artifacts/export-win-runtime/win site/export/"${version}"/win
           cp _artifacts/export-html-runtime/html site/export/"${version}"/html
           cp _artifacts/export-linux-runtime/linux site/export/"${version}"/linux
+          cp _artifacts/macos-universal/mac site/export/"${version}"/mac
           cp _artifacts/export-win-runtime/win site/export/latest/win
           cp _artifacts/export-html-runtime/html site/export/latest/html
           cp _artifacts/export-linux-runtime/linux site/export/latest/linux
+          cp _artifacts/macos-universal/mac site/export/latest/mac
 
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win.exe
           cp _artifacts/pro-win-exe/tic80-pro-win.exe site/downloads/tic80-pro-win-"${version}".exe
@@ -302,6 +575,10 @@ jobs:
           cp _artifacts/pro-linux-exe/tic80-pro-linux site/downloads/tic80-pro-linux-"${version}"
           cp _artifacts/linux-exe/tic80-linux site/downloads/tic80-linux
           cp _artifacts/linux-exe/tic80-linux site/downloads/tic80-linux-"${version}"
+          cp _artifacts/macos-universal/tic80-macos.zip site/downloads/tic80-macos.zip
+          cp _artifacts/macos-universal/tic80-macos.zip site/downloads/tic80-macos-"${version}".zip
+          cp _artifacts/macos-universal/tic80-pro-macos.zip site/downloads/tic80-pro-macos.zip
+          cp _artifacts/macos-universal/tic80-pro-macos.zip site/downloads/tic80-pro-macos-"${version}".zip
 
           cat > site/index.html <<EOF
           <!doctype html>
@@ -325,6 +602,7 @@ jobs:
               <li><a href="./export/${version}/win">export/${version}/win</a></li>
               <li><a href="./export/${version}/html">export/${version}/html</a></li>
               <li><a href="./export/${version}/linux">export/${version}/linux</a></li>
+              <li><a href="./export/${version}/mac">export/${version}/mac</a></li>
             </ul>
 
             <h2>Export runtime (latest)</h2>
@@ -332,6 +610,7 @@ jobs:
               <li><a href="./export/latest/win">export/latest/win</a></li>
               <li><a href="./export/latest/html">export/latest/html</a></li>
               <li><a href="./export/latest/linux">export/latest/linux</a></li>
+              <li><a href="./export/latest/mac">export/latest/mac</a></li>
             </ul>
 
             <h2>Downloads</h2>
@@ -340,11 +619,15 @@ jobs:
               <li><a href="./downloads/tic80-win-${version}.exe">downloads/tic80-win-${version}.exe</a></li>
               <li><a href="./downloads/tic80-linux">downloads/tic80-linux</a></li>
               <li><a href="./downloads/tic80-linux-${version}">downloads/tic80-linux-${version}</a></li>
+              <li><a href="./downloads/tic80-macos.zip">downloads/tic80-macos.zip</a></li>
+              <li><a href="./downloads/tic80-macos-${version}.zip">downloads/tic80-macos-${version}.zip</a></li>
               <!--
               <li><a href="./downloads/tic80-pro-win.exe">downloads/tic80-pro-win.exe</a></li>
               <li><a href="./downloads/tic80-pro-win-${version}.exe">downloads/tic80-pro-win-${version}.exe</a></li>
               <li><a href="./downloads/tic80-pro-linux">downloads/tic80-pro-linux</a></li>
               <li><a href="./downloads/tic80-pro-linux-${version}">downloads/tic80-pro-linux-${version}</a></li>
+              <li><a href="./downloads/tic80-pro-macos.zip">downloads/tic80-pro-macos.zip</a></li>
+              <li><a href="./downloads/tic80-pro-macos-${version}.zip">downloads/tic80-pro-macos-${version}.zip</a></li>
               -->
             </ul>
           </body>
