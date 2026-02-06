@@ -453,6 +453,7 @@ jobs:
           mkdir -p out
 
           lipo -create -output out/mac _macos/intel-export/tic80 _macos/arm64-export/tic80
+          chmod +x out/mac
 
           merge_pkg() {
             local intel_dir="$1"
@@ -461,6 +462,7 @@ jobs:
 
             mkdir -p "$out_dir"
             lipo -create -output "$out_dir/tic80" "$intel_dir/tic80" "$arm_dir/tic80"
+            chmod +x "$out_dir/tic80"
 
             for f in "$intel_dir"/*.dylib; do
               [ -e "$f" ] || continue
