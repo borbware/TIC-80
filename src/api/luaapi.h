@@ -22,12 +22,12 @@
 
 #pragma once
 
-#include <stdlib.h>
-#include <string.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#include <ctype.h>
+#include <stdlib.h>		// ????
+#include <string.h>		// lstring.h????
+#include <lua.h>		// ok
+#include <lauxlib.h>	// ok
+#include <lualib.h>		// ok
+#include <ctype.h>		// lctype.h????
 
 void luaapi_init(tic_core* core);
 void luaapi_tick(tic_mem* tic);

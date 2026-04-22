@@ -23,11 +23,11 @@
 #include "core/core.h"
 #include "luaapi.h"
 
-#include <stdlib.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#include <ctype.h>
+#include <stdlib.h>     // lstdlib.h????
+#include <lua.h>        // ok
+#include <lauxlib.h>    // ok
+#include <lualib.h>     // OK
+#include <ctype.h>      // lctype.h????
 
 static bool initLua(tic_mem* tic, const char* code)
 {

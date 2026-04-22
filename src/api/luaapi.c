@@ -22,11 +22,11 @@
 
 #include "core/core.h"
 
-#include <stdlib.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#include <ctype.h>
+#include <stdlib.h> // ok
+#include <lua.h>    // ok
+#include <lauxlib.h>// ok
+#include <lualib.h> // ok
+#include <ctype.h>  // lctype.h?
 
 extern bool parse_note(const char* noteStr, s32* note, s32* octave);
 
