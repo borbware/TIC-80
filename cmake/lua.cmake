@@ -33,12 +33,12 @@ if(BUILD_WITH_LUA OR BUILD_WITH_MOON OR BUILD_WITH_YUE OR BUILD_WITH_FENNEL)
     set(LUA_DIR ${THIRDPARTY_DIR}/lua)
     set(LUA_SRC
         ${LUA_DIR}/src/lib_aux.c
-        ${LUA_DIR}/src/lb_base.c
+        ${LUA_DIR}/src/lib_base.c
         ${LUA_DIR}/src/lib_bit.c
-        ${LUA_DIR}/src/b_buffer.c
+        ${LUA_DIR}/src/lib_buffer.c
         ${LUA_DIR}/src/lib_debug.c
         ${LUA_DIR}/src/lib_ffi.c
-        ${LUA_DIR}/src/lib_initc
+        ${LUA_DIR}/src/lib_init.c
         ${LUA_DIR}/src/lib_io.c
         ${LUA_DIR}/src/lib_jit.c
         ${LUA_DIR}/src/lib_math.c
@@ -56,7 +56,7 @@ if(BUILD_WITH_LUA OR BUILD_WITH_MOON OR BUILD_WITH_YUE OR BUILD_WITH_FENNEL)
         ${LUA_DIR}/src/lj_buf.c
         ${LUA_DIR}/src/lj_carith.c
         ${LUA_DIR}/src/lj_ccall.c
-        ${LUA_DIR}/src/lj_ccallbackc
+        ${LUA_DIR}/src/lj_ccallback.c
         ${LUA_DIR}/src/lj_cconv.c
         ${LUA_DIR}/src/lj_cdata.c
         ${LUA_DIR}/src/lj_char.c
