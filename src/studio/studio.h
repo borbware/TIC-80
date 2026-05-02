@@ -42,6 +42,8 @@
 
 #ifdef BAREMETALPI
 #define TIC_LOCAL "../.tic80/"
+#elif defined(__SWITCH__)
+#define TIC_LOCAL "./data/"
 #else
 #define TIC_LOCAL ".local/"
 #endif
@@ -260,6 +262,7 @@ void confirmLoadCart(Studio* studio, ConfirmCallback callback, void* data);
 
 bool studioCartChanged(Studio* studio);
 void playSystemSfx(Studio* studio, s32 id);
+bool studio_is_cart_loaded(Studio* studio);
 
 void gotoMenu(Studio* studio);
 void gotoCode(Studio* studio);
